@@ -5,30 +5,38 @@ import { nitro } from "nitro/vite";
 import { defineConfig } from "vite";
 import tsConfigPaths from "vite-tsconfig-paths";
 
-export default defineConfig(({ command }) => ({
-  server: {
-    host: "::",
-    port: 8080,
-  },
-  resolve: {
-    dedupe: [
-      "react",
-      "react-dom",
-      "react/jsx-runtime",
-      "react/jsx-dev-runtime",
-      "@tanstack/react-query",
-      "@tanstack/query-core",
+export default defineConfig(({ command }) => {
+  const isVercel = process.env.VERCEL === "1";
+
+  return {
+    server: {
+      host: "::",
+      port: 8080,
+    },
+    resolve: {
+      dedupe: [
+        "react",
+        "react-dom",
+        "react/jsx-runtime",
+        "react/jsx-dev-runtime",
+        "@tanstack/react-query",
+        "@tanstack/query-core",
+      ],
+    },
+    plugins: [
+      tailwindcss(),
+      tsConfigPaths({ projects: ["./tsconfig.json"] }),
+      tanstackStart({ server: { entry: "server" } }),
+      command === "build" &&
+        nitro(
+          isVercel
+            ? { preset: "vercel" }
+            : {
+                preset: "cloudflare-module",
+                cloudflare: { nodeCompat: true, deployConfig: true },
+              },
+        ),
+      react(),
     ],
-  },
-  plugins: [
-    tailwindcss(),
-    tsConfigPaths({ projects: ["./tsconfig.json"] }),
-    tanstackStart({ server: { entry: "server" } }),
-    command === "build" &&
-      nitro({
-        preset: "cloudflare-module",
-        cloudflare: { nodeCompat: true, deployConfig: true },
-      }),
-    react(),
-  ],
-}));
+  };
+});
