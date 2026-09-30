@@ -21,7 +21,6 @@ export const Route = createFileRoute("/changelog")({
 const sections = [
   { id: "v013", label: "v0.1.3" },
   { id: "v0", label: "v0.1.0–v0.1.2" },
-  { id: "next", label: "What's next" },
 ];
 
 const categories = [
@@ -119,20 +118,6 @@ function Changelog() {
         >
           Meet the effects <ArrowUpRight className="size-4" aria-hidden />
         </Link>
-      </ContentSection>
-
-      <ContentSection id="next" eyebrow="Upcoming versions" title="More soon.">
-        <p>
-          This timeline will grow with each release. Until then, take the current set for a spin and
-          make something with it.
-        </p>
-        <div className="rounded-2xl border border-dashed border-foreground/25 p-6">
-          <span className="chip bg-[var(--violet)]">Next entry</span>
-          <p className="mt-4 text-sm text-muted-foreground">
-            A space is saved for the next version. No mystery feature list, just room to keep
-            moving.
-          </p>
-        </div>
       </ContentSection>
     </ContentPage>
   );
