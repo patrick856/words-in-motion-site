@@ -10,33 +10,79 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AnimationsRouteImport } from './routes/animations'
+import { Route as ChangelogRouteImport } from './routes/changelog'
+import { Route as DocsRouteImport } from './routes/docs'
+import { Route as GettingStartedRouteImport } from './routes/getting-started'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AnimationsRoute = AnimationsRouteImport.update({
+  id: '/animations',
+  path: '/animations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChangelogRoute = ChangelogRouteImport.update({
+  id: '/changelog',
+  path: '/changelog',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocsRoute = DocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GettingStartedRoute = GettingStartedRouteImport.update({
+  id: '/getting-started',
+  path: '/getting-started',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/animations': typeof AnimationsRoute
+  '/changelog': typeof ChangelogRoute
+  '/docs': typeof DocsRoute
+  '/getting-started': typeof GettingStartedRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/animations': typeof AnimationsRoute
+  '/changelog': typeof ChangelogRoute
+  '/docs': typeof DocsRoute
+  '/getting-started': typeof GettingStartedRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/animations': typeof AnimationsRoute
+  '/changelog': typeof ChangelogRoute
+  '/docs': typeof DocsRoute
+  '/getting-started': typeof GettingStartedRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/animations' | '/changelog' | '/docs' | '/getting-started'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/animations' | '/changelog' | '/docs' | '/getting-started'
+  id:
+    | '__root__'
+    | '/'
+    | '/animations'
+    | '/changelog'
+    | '/docs'
+    | '/getting-started'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AnimationsRoute: typeof AnimationsRoute
+  ChangelogRoute: typeof ChangelogRoute
+  DocsRoute: typeof DocsRoute
+  GettingStartedRoute: typeof GettingStartedRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +94,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/animations': {
+      id: '/animations'
+      path: '/animations'
+      fullPath: '/animations'
+      preLoaderRoute: typeof AnimationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/changelog': {
+      id: '/changelog'
+      path: '/changelog'
+      fullPath: '/changelog'
+      preLoaderRoute: typeof ChangelogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/docs': {
+      id: '/docs'
+      path: '/docs'
+      fullPath: '/docs'
+      preLoaderRoute: typeof DocsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/getting-started': {
+      id: '/getting-started'
+      path: '/getting-started'
+      fullPath: '/getting-started'
+      preLoaderRoute: typeof GettingStartedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AnimationsRoute: AnimationsRoute,
+  ChangelogRoute: ChangelogRoute,
+  DocsRoute: DocsRoute,
+  GettingStartedRoute: GettingStartedRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
