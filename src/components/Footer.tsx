@@ -4,8 +4,8 @@ import { LoopText } from "@/components/AnimatedText";
 import { GITHUB_URL, NPM_URL } from "@/lib/links";
 
 const LINKS = [
-  { label: "Docs", to: "/docs" as const },
   { label: "Getting Started", to: "/getting-started" as const },
+  { label: "Docs", to: "/docs" as const },
   { label: "Animations", to: "/animations" as const },
   { label: "Changelog", to: "/changelog" as const },
 ];

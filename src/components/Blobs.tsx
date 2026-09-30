@@ -15,7 +15,7 @@ type Blob = {
 const DEFAULT_BLOBS: Blob[] = [
   {
     color: "var(--tomato)",
-    size: "38vw",
+    size: "max(38vw, 22rem)",
     top: "-8%",
     left: "-6%",
     delay: "0s",
@@ -24,7 +24,7 @@ const DEFAULT_BLOBS: Blob[] = [
   },
   {
     color: "var(--blue)",
-    size: "30vw",
+    size: "max(30vw, 20rem)",
     top: "20%",
     right: "-8%",
     delay: "-6s",
@@ -33,7 +33,7 @@ const DEFAULT_BLOBS: Blob[] = [
   },
   {
     color: "var(--lemon)",
-    size: "26vw",
+    size: "max(26vw, 18rem)",
     bottom: "-6%",
     left: "18%",
     delay: "-12s",
@@ -42,7 +42,7 @@ const DEFAULT_BLOBS: Blob[] = [
   },
   {
     color: "var(--mint)",
-    size: "22vw",
+    size: "max(22vw, 16rem)",
     bottom: "10%",
     right: "14%",
     delay: "-18s",
@@ -53,7 +53,6 @@ const DEFAULT_BLOBS: Blob[] = [
 
 export function Blobs({ blobs = DEFAULT_BLOBS }: { blobs?: Blob[] }) {
   const reduced = useReducedMotion();
-  if (reduced) return null;
 
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -72,6 +71,8 @@ export function Blobs({ blobs = DEFAULT_BLOBS }: { blobs?: Blob[] }) {
             opacity: b.opacity,
             animationDelay: b.delay,
             animationDuration: b.duration,
+            animationPlayState: reduced ? "paused" : "running",
+            willChange: reduced ? "auto" : "transform",
           }}
         />
       ))}

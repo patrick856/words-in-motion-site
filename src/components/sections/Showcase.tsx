@@ -16,7 +16,7 @@ import {
   paperCut,
   windScatter,
 } from "words-in-motion/outro";
-import { createScrollTrigger } from "words-in-motion/scroll";
+import { HERO_SCROLL_EVENT, SKIP_OUTRO_EVENT } from "@/lib/scroll-navigation";
 import { CodeChip, LabelChip } from "@/components/CodeChip";
 import { useFontsReady, useReducedMotion } from "@/lib/motion";
 
@@ -126,17 +126,36 @@ function ShowcaseBlock({
     if (!fontsReady || !el || !introEnabled) return;
 
     let active: Handle | null = null;
+    let inView = false;
     const handles = introHandles.current;
-    const trigger = createScrollTrigger(el, { start: "top 80%", once: true }, () => {
+    const stop = () => {
+      active?.cancel();
+      active = null;
+      handles[index] = null;
+    };
+    const setInView = (next: boolean) => {
+      if (next === inView) return;
+      inView = next;
+      stop();
+      if (!inView) return;
       active = pair.introFn(el, { duration: 1500 });
       handles[index] = active;
-      return active;
-    });
+    };
+
+    if (!("IntersectionObserver" in window)) {
+      setInView(true);
+      return stop;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setInView(Boolean(entry?.isIntersecting && entry.intersectionRatio > 0)),
+      { rootMargin: "-25% 0px -25% 0px", threshold: 0.01 },
+    );
+    observer.observe(el);
 
     return () => {
-      active?.cancel();
-      handles[index] = null;
-      trigger.destroy();
+      observer.disconnect();
+      stop();
     };
   }, [fontsReady, pair, introEnabled, stageSlot, index, introHandles]);
 
@@ -204,6 +223,7 @@ function PinnedReversePass({
   setLastIntroDone: (done: boolean) => void;
 }) {
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const bypassUntilRef = useRef(0);
   const fontsReady = useFontsReady();
   const [hintHidden, setHintHidden] = useState(false);
 
@@ -211,12 +231,13 @@ function PinnedReversePass({
     const wrapper = wrapperRef.current;
     if (!wrapper) return;
     const onScroll = () => {
+      if (performance.now() < bypassUntilRef.current) return;
       const rect = wrapper.getBoundingClientRect();
       if (rect.top < window.innerHeight) setStageEntered(true);
       if (rect.top <= 1 && rect.bottom > 0) setReverseActive(true);
     };
     const onWheel = (event: WheelEvent) => {
-      if (reverseActive || !event.cancelable) return;
+      if (reverseActive || !event.cancelable || performance.now() < bypassUntilRef.current) return;
       const rect = wrapper.getBoundingClientRect();
       if (event.deltaY > 0 && rect.top > 1 && rect.top < window.innerHeight && event.deltaY >= rect.top) {
         event.preventDefault();
@@ -230,12 +251,24 @@ function PinnedReversePass({
         setReverseActive(true);
       }
     };
+    const onHeroScroll = () => {
+      bypassUntilRef.current = performance.now() + 2000;
+      setReverseActive(false);
+    };
+    const onSkipOutro = () => {
+      bypassUntilRef.current = performance.now() + 2000;
+      setReverseActive(false);
+    };
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("wheel", onWheel, { passive: false, capture: true });
+    window.addEventListener(HERO_SCROLL_EVENT, onHeroScroll);
+    window.addEventListener(SKIP_OUTRO_EVENT, onSkipOutro);
     onScroll();
     return () => {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("wheel", onWheel, true);
+      window.removeEventListener(HERO_SCROLL_EVENT, onHeroScroll);
+      window.removeEventListener(SKIP_OUTRO_EVENT, onSkipOutro);
     };
   }, [reverseActive, setReverseActive, setStageEntered]);
 
@@ -276,7 +309,7 @@ function PinnedReversePass({
 
     if (completedStep === 0 && textRefs.current[5]) {
       setLastIntroDone(false);
-      const intro = PAIRS[5]!.introFn(textRefs.current[5], { duration: 1900 });
+      const intro = PAIRS[5]!.introFn(textRefs.current[5], { duration: 1500 });
       handles[5] = intro;
       void intro.finished.then(() => {
         if (!disposed) setLastIntroDone(true);
@@ -314,13 +347,13 @@ function PinnedReversePass({
       if (step === 0) await handles[5]?.finished.catch(() => {});
       if (disposed) return;
       setBlockState(index, "exiting");
-      const outro = pair.outroFn(text, { duration: 2000, keep: true });
+      const outro = pair.outroFn(text, { duration: 1600, keep: true });
       outroHandles[index] = outro;
       await Promise.all([
         outro.finished.then(() => {
           if (!disposed && outroHandles[index] === outro) text.style.opacity = "0";
         }).catch(() => {}),
-        move(block, REST, exitTransform(pair), 1600, "ease-in-out", pair.outroLeadMs),
+        move(block, REST, exitTransform(pair), 1250, "ease-in-out", pair.outroLeadMs),
       ]);
       if (disposed) return;
       setBlockState(index, "gone");
@@ -329,7 +362,7 @@ function PinnedReversePass({
         const next = blockRefs.current[index - 1];
         if (!next) return;
         setBlockState(index - 1, "onStage");
-        await move(next, ABOVE, REST, 1100, "ease-out");
+        await move(next, ABOVE, REST, 850, "ease-out");
         if (!disposed) setBlockState(index - 1, "onStage");
       }
     };
@@ -340,7 +373,7 @@ function PinnedReversePass({
         const newer = blockRefs.current[newerIndex];
         if (newer) {
           setBlockState(newerIndex, "exiting");
-          await move(newer, REST, ABOVE, 1100, "ease-in-out");
+          await move(newer, REST, ABOVE, 850, "ease-in-out");
           if (disposed) return;
           setBlockState(newerIndex, "idle");
         }
@@ -355,7 +388,7 @@ function PinnedReversePass({
       const oldText = textRefs.current[oldIndex];
       if (oldText) oldText.style.opacity = originalTextOpacity[oldIndex] ?? "";
       setBlockState(oldIndex, "onStage");
-      await move(old, exitTransform(pair), REST, 1200, "ease-out");
+      await move(old, exitTransform(pair), REST, 950, "ease-out");
       if (!disposed) setBlockState(oldIndex, "onStage");
     };
 
@@ -464,12 +497,28 @@ function PinnedReversePass({
       if (!scrollFrame) scrollFrame = requestAnimationFrame(updateTarget);
     };
 
+    const onHeroScroll = () => {
+      disposed = true;
+      setReverseActive(false);
+    };
+
+    const onSkipOutro = () => {
+      disposed = true;
+      setReverseActive(false);
+      window.scrollTo({
+        top: window.scrollY + wrapper.getBoundingClientRect().bottom,
+        behavior: "instant",
+      });
+    };
+
     window.addEventListener("wheel", onWheel, { passive: false, capture: true });
     window.addEventListener("keydown", onKeyDown, { capture: true });
     window.addEventListener("touchstart", onTouchStart, { passive: true });
     window.addEventListener("touchmove", onTouchMove, { passive: false, capture: true });
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
+    window.addEventListener(HERO_SCROLL_EVENT, onHeroScroll);
+    window.addEventListener(SKIP_OUTRO_EVENT, onSkipOutro);
     onScroll();
 
     return () => {
@@ -480,6 +529,8 @@ function PinnedReversePass({
       window.removeEventListener("touchmove", onTouchMove, true);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
+      window.removeEventListener(HERO_SCROLL_EVENT, onHeroScroll);
+      window.removeEventListener(SKIP_OUTRO_EVENT, onSkipOutro);
       if (scrollFrame) cancelAnimationFrame(scrollFrame);
       animations.forEach((animation) => animation.cancel());
       outroHandles.forEach((handle) => handle?.cancel());
@@ -493,7 +544,7 @@ function PinnedReversePass({
 
   return (
     <div id="reverse-pass" ref={wrapperRef} data-native-scroll-stage className="relative h-[600vh]">
-      <div className="sticky top-0 h-screen overflow-hidden border-y border-foreground/15 bg-background px-5 md:px-10">
+      <div className="sticky top-0 h-screen overflow-x-clip overflow-y-visible border-y border-foreground/15 bg-background px-5 md:px-10">
         <div className="relative mx-auto h-full max-w-[1200px]">
           {PAIRS.map((pair, index) => (
             <div key={pair.intro} ref={(element) => { slotRefs.current[index] = element; }} className="absolute inset-0" />
@@ -501,6 +552,13 @@ function PinnedReversePass({
           <p aria-hidden={hintHidden} className={`absolute bottom-8 left-0 font-mono text-xs tracking-widest text-muted-foreground uppercase transition-opacity duration-500 ${hintHidden ? "opacity-0" : "opacity-100"}`}>
             Keep scrolling ↓
           </p>
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new Event(SKIP_OUTRO_EVENT))}
+            className="absolute right-0 bottom-8 rounded-full border border-foreground bg-background/85 px-3 py-2 font-mono text-[0.65rem] tracking-wide uppercase backdrop-blur-md transition-colors hover:bg-foreground hover:text-background"
+          >
+            Skip animation ↓
+          </button>
         </div>
       </div>
     </div>
@@ -548,7 +606,7 @@ export function Showcase() {
   const reduced = useReducedMotion();
 
   return (
-    <section className="relative px-5 py-24 md:px-10 md:py-36">
+    <section className="relative overflow-x-clip px-5 py-24 md:px-10 md:py-36">
       <div className="mx-auto max-w-[1200px]">
         <p className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
           Intro / outro

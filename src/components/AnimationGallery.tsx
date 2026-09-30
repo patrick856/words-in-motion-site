@@ -186,7 +186,7 @@ const effects: GalleryEffect[] = [
     description: "A solid pointer meets springy type.",
     text: "Excuse me.",
     color: colors[4],
-    run: (el) => interact.obstaclePush(el, { cursorRadius: 55, ...touch }),
+    run: (el) => interact.obstaclePush(el, touch),
   },
   {
     name: "proximityFade",
@@ -265,7 +265,6 @@ function GalleryCard({ effect, moreText }: { effect: GalleryEffect; moreText: bo
   const cardRef = useRef<HTMLElement>(null);
   const textRef = useRef<HTMLParagraphElement>(null);
   const fontsReady = useFontsReady();
-  const [visible, setVisible] = useState(false);
   const [replay, setReplay] = useState(0);
   const [copied, setCopied] = useState(false);
   const importCode = `import { ${effect.name} } from "words-in-motion/${effect.category.toLowerCase()}";`;
@@ -276,27 +275,38 @@ function GalleryCard({ effect, moreText }: { effect: GalleryEffect; moreText: bo
 
   useEffect(() => {
     const card = cardRef.current;
-    if (!card) return;
+    const text = textRef.current;
+    if (!fontsReady || !card || !text || !effect.run) return;
+
+    let handle: Handle | undefined;
+    let inView = false;
+    const stop = () => {
+      if (handle?.destroy) handle.destroy();
+      else handle?.cancel?.();
+      handle = undefined;
+    };
+    const setInView = (next: boolean) => {
+      if (next === inView) return;
+      inView = next;
+      stop();
+      if (inView) handle = effect.run?.(text);
+    };
+
     if (!("IntersectionObserver" in window)) {
-      setVisible(true);
-      return;
+      setInView(true);
+      return stop;
     }
+
     const observer = new IntersectionObserver(
-      ([entry]) => setVisible(entry?.isIntersecting ?? false),
-      { rootMargin: "100px" },
+      ([entry]) => setInView(Boolean(entry?.isIntersecting && entry.intersectionRatio > 0)),
+      { rootMargin: "-25% 0px -25% 0px", threshold: 0.01 },
     );
     observer.observe(card);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    if (!visible || !fontsReady || !textRef.current || !effect.run) return;
-    const handle = effect.run(textRef.current);
     return () => {
-      if (handle.destroy) handle.destroy();
-      else handle.cancel?.();
+      observer.disconnect();
+      stop();
     };
-  }, [effect, fontsReady, replay, visible]);
+  }, [effect, fontsReady, replay]);
 
   const copy = async () => {
     if (await copyText(importCode)) {
@@ -330,13 +340,15 @@ function GalleryCard({ effect, moreText }: { effect: GalleryEffect; moreText: bo
             </a>
           </div>
         ) : (
-          <p
-            ref={textRef}
-            style={effect.category === "Interact" ? { touchAction: "none" } : undefined}
-            className={`mt-5 flex min-h-[112px] items-center font-display text-3xl leading-none tracking-tight sm:text-4xl ${demoWeight}`}
-          >
-            {demoText}
-          </p>
+          <div className="mt-5 flex min-h-[112px] items-center">
+            <p
+              ref={textRef}
+              style={effect.category === "Interact" ? { touchAction: "none" } : undefined}
+              className={`w-full font-display text-3xl leading-none tracking-tight sm:text-4xl ${demoWeight}`}
+            >
+              {demoText}
+            </p>
+          </div>
         )}
       </div>
       <div className="flex flex-1 flex-col gap-4 p-6 sm:p-7">
@@ -386,7 +398,7 @@ export function AnimationGallery() {
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-4">
-      <div role="tablist" aria-label="Filter animations" className="flex flex-wrap gap-2">
+        <div role="tablist" aria-label="Filter animations" className="flex flex-wrap gap-2">
         {filters.map((filter, index) => (
           <button
             key={filter}
@@ -412,15 +424,15 @@ export function AnimationGallery() {
             {filter}
           </button>
         ))}
-      </div>
-      <button
-        type="button"
-        aria-pressed={moreText}
-        onClick={() => setMoreText((value) => !value)}
-        className="rounded-full border border-foreground px-4 py-2 font-mono text-xs transition-colors hover:bg-[var(--mint)] aria-pressed:bg-[var(--mint)]"
-      >
-        More text
-      </button>
+        </div>
+        <button
+          type="button"
+          aria-pressed={moreText}
+          onClick={() => setMoreText((value) => !value)}
+          className="rounded-full border border-foreground px-4 py-2 font-mono text-xs transition-colors hover:bg-[var(--mint)] aria-pressed:bg-[var(--mint)]"
+        >
+          More text
+        </button>
       </div>
       <div
         id="gallery-panel"

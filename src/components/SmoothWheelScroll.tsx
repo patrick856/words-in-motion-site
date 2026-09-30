@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { HERO_SCROLL_EVENT } from "@/lib/scroll-navigation";
 
 const MAX_WHEEL_STEP = 110;
 const MAX_SPEED = 1200; // Pixels per second while catching up to the wheel.
@@ -83,6 +84,7 @@ export function SmoothWheelScroll() {
     window.addEventListener("keydown", stop);
     window.addEventListener("pointerdown", stop);
     window.addEventListener("popstate", stop);
+    window.addEventListener(HERO_SCROLL_EVENT, stop);
     motionPreference.addEventListener("change", stop);
     return () => {
       stop();
@@ -90,6 +92,7 @@ export function SmoothWheelScroll() {
       window.removeEventListener("keydown", stop);
       window.removeEventListener("pointerdown", stop);
       window.removeEventListener("popstate", stop);
+      window.removeEventListener(HERO_SCROLL_EVENT, stop);
       motionPreference.removeEventListener("change", stop);
     };
   }, []);

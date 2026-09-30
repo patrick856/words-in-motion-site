@@ -21,7 +21,7 @@ export const Route = createFileRoute("/animations")({
 function Animations() {
   return (
     <main>
-      <section className="relative overflow-hidden border-b border-foreground/10 px-5 pt-36 pb-20 md:px-10 md:pt-44 md:pb-28">
+      <section className="relative border-b border-foreground/10 px-5 pt-36 pb-20 md:px-10 md:pt-44 md:pb-28">
         <Blobs />
         <div className="relative mx-auto max-w-[1400px]">
           <p className="font-mono text-xs tracking-widest text-muted-foreground uppercase">Animations / 03</p>

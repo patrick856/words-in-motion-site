@@ -7,22 +7,22 @@ const BLOCKS = [
     name: "readingLine",
     color: "var(--lemon)",
     effect: readingLine,
-    options: { start: "top 85%", end: "top 25%", by: "words" as const, smooth: 0.25 },
-    text: "Reading is motion already. Your eye sweeps, pauses, jumps back. readingLine just makes that sweep visible, word by word, exactly as fast as the reader scrolls.",
+    options: { start: "top 78%", end: "top 18%", by: "words" as const, smooth: 0.25 },
+    text: "Reading is motion.\n\nYour eye sweeps.    Pauses.    Jumps back.\n\nreadingLine makes the rhythm visible.",
   },
   {
     name: "scatterReassemble",
     color: "var(--mint)",
     effect: scatterReassemble,
-    options: { start: "top 90%", end: "top 30%", smooth: 0.2 },
-    text: "Chaos, then order. Letters arrive scattered across the block and settle into place in reading order, so the sentence assembles itself while you scroll toward it.",
+    options: { start: "top 82%", end: "top 22%", smooth: 0.2 },
+    text: "Chaos.\n\nThen order.\n\nLetters scatter.    Words return.    The sentence settles.",
   },
   {
     name: "waveRelay",
     color: "var(--violet)",
     effect: waveRelay,
-    options: { start: "top 90%", end: "top 25%", smooth: 0.18 },
-    text: "One letter runs the whole line like a relay, nudging its neighbours aside as it passes, then handing the motion over at the end of every wrapped row.",
+    options: { start: "top 82%", end: "top 18%", smooth: 0.18 },
+    text: "One letter starts.\n\nThe next one follows.    Then another.\n\nA wave crosses every line.",
   },
 ];
 
@@ -44,7 +44,7 @@ export function ScrollSection() {
               <ScrubText
                 effect={b.effect as never}
                 options={b.options}
-                className="mt-6 font-display text-2xl leading-[1.15] font-extrabold tracking-tight sm:text-4xl md:text-5xl"
+                className="mt-6 whitespace-pre-wrap font-display text-2xl leading-[1.2] font-extrabold tracking-tight sm:text-4xl md:text-5xl"
               >
                 {b.text}
               </ScrubText>

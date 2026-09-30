@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight } from "lucide-react";
 import { directionalReveal, rise } from "words-in-motion/intro";
@@ -8,17 +8,37 @@ import { Blobs } from "@/components/Blobs";
 import { GITHUB_URL } from "@/lib/links";
 
 export function Hero() {
+  const headlineRef = useRef<HTMLHeadingElement>(null);
+  const [visible, setVisible] = useState(false);
   const [headlineDone, setHeadlineDone] = useState(false);
 
+  useEffect(() => {
+    const headline = headlineRef.current;
+    if (!headline) return;
+    if (!("IntersectionObserver" in window)) {
+      setVisible(true);
+      return;
+    }
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry?.isIntersecting) {
+        setVisible(true);
+        observer.disconnect();
+      }
+    }, { threshold: 0.1 });
+    observer.observe(headline);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <section className="relative flex min-h-screen items-center overflow-hidden px-5 pt-28 pb-20 md:px-10">
+    <section id="hero" className="relative flex min-h-screen items-center px-5 pt-28 pb-20 md:px-10">
       <Blobs />
       <div className="relative mx-auto w-full max-w-[1400px]">
-        <h1 className="display-xl max-w-[16ch]">
+        <h1 ref={headlineRef} className="display-xl max-w-[16ch]">
           <IntroText
             as="span"
             effect={directionalReveal as never}
             options={{ duration: 1400 }}
+            delayUntil={visible}
             onDone={() => setHeadlineDone(true)}
             className="block"
           >
@@ -30,7 +50,7 @@ export function Hero() {
           as="p"
           effect={rise as never}
           options={{ duration: 900 }}
-          delayUntil={headlineDone}
+          delayUntil={visible && headlineDone}
           className="mt-8 max-w-[52ch] text-lg text-muted-foreground md:text-2xl"
         >
           Intros, outros, loops, scroll scrubs and cursor tricks. One tiny package, zero

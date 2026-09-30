@@ -20,10 +20,11 @@ type Block = {
   shape: CSSProperties;
   span: string;
   text: string[];
+  centered?: boolean;
   create: (el: HTMLElement) => { destroy: () => void };
 };
 
-const touch = { touch: "follow" as const, pointerArea: "target" as const };
+const touch = { radius: 320, touch: "follow" as const, pointerArea: "viewport" as const };
 
 const BLOCKS: Block[] = [
   {
@@ -33,7 +34,8 @@ const BLOCKS: Block[] = [
     shape: { borderRadius: "48% 52% 61% 39% / 44% 38% 62% 56%" },
     span: "md:col-span-5 md:row-span-2",
     text: ["Come", "a little", "closer"],
-    create: (el) => pull(el, { radius: 170, ...touch }),
+    centered: true,
+    create: (el) => pull(el, touch),
   },
   {
     name: "push",
@@ -42,7 +44,8 @@ const BLOCKS: Block[] = [
     shape: { borderRadius: "999px" },
     span: "md:col-span-4",
     text: ["Back off,", "letters said"],
-    create: (el) => push(el, { radius: 150, ...touch }),
+    centered: true,
+    create: (el) => push(el, touch),
   },
   {
     name: "obstaclePush",
@@ -51,7 +54,7 @@ const BLOCKS: Block[] = [
     shape: { clipPath: "polygon(8% 0, 100% 0, 92% 100%, 0 100%)" },
     span: "md:col-span-3 md:row-span-2",
     text: ["Solid", "cursor,", "shoving", "glyphs"],
-    create: (el) => obstaclePush(el, { easing: 0.15, ...touch }),
+    create: (el) => obstaclePush(el, { easing: 0.15, cursorRadius: 6, ...touch }),
   },
   {
     name: "proximityFade",
@@ -69,6 +72,7 @@ const BLOCKS: Block[] = [
     shape: { borderRadius: "999px 999px 1.5rem 1.5rem" },
     span: "md:col-span-5",
     text: ["Every letter", "has a", "back side"],
+    centered: true,
     create: (el) => proximityFlip(el, touch),
   },
   {
@@ -87,6 +91,7 @@ const BLOCKS: Block[] = [
     shape: { borderRadius: "50%" },
     span: "md:col-span-3",
     text: ["Nervous", "type"],
+    centered: true,
     create: (el) => proximityShake(el, touch),
   },
   {
@@ -96,7 +101,7 @@ const BLOCKS: Block[] = [
     shape: { borderRadius: "3rem 0.5rem 3rem 0.5rem" },
     span: "md:col-span-5",
     text: ["Bold where", "you look,", "light elsewhere"],
-    create: (el) => fontWeight(el, { maxWeight: 800, ...touch }),
+    create: (el) => fontWeight(el, { minWeight: 400, maxWeight: 800, focusRadius: 220, ...touch }),
   },
   {
     name: "accentColor",
@@ -105,6 +110,7 @@ const BLOCKS: Block[] = [
     shape: { borderRadius: "1rem 1rem 6rem 6rem" },
     span: "md:col-span-4",
     text: ["Colour", "follows", "the dot"],
+    centered: true,
     create: (el) => accentColor(el, { accentColor: "#FF5A3C", ...touch }),
   },
 ];
@@ -116,7 +122,7 @@ function PlayBlock({ block }: { block: Block }) {
   return (
     <article
       ref={wrapRef}
-      className={`relative flex max-h-[60vh] min-h-[220px] flex-col justify-between overflow-hidden border border-foreground p-6 md:p-8 ${block.span}`}
+      className={`relative flex min-h-[240px] flex-col justify-between overflow-hidden border border-foreground p-6 md:p-8 ${block.centered ? "items-center text-center" : ""} ${block.span}`}
       style={{ ...block.shape, background: block.color, cursor: dot ? "none" : "auto" }}
       onPointerMove={(e) => {
         const r = wrapRef.current?.getBoundingClientRect();
@@ -129,12 +135,12 @@ function PlayBlock({ block }: { block: Block }) {
         as="p"
         effects={[block.create]}
         style={{ touchAction: "none" }}
-        className="font-display text-2xl leading-[1.05] font-extrabold tracking-tight text-[#0E0E0E] md:text-3xl"
+        className={`font-display text-2xl leading-[1.05] tracking-tight text-[#0E0E0E] md:text-3xl ${block.name === "fontWeight" ? "font-normal" : "font-extrabold"} ${block.centered ? "mt-auto max-w-[72%]" : ""} ${block.name === "obstaclePush" ? "ml-8 md:ml-10" : ""}`}
       >
         {block.text.join(" ")}
       </InteractText>
 
-      <div className="mt-6 flex flex-wrap items-center gap-2">
+      <div className={`mt-6 flex flex-wrap items-center gap-2 ${block.centered ? "mb-auto max-w-[78%] justify-center" : ""}`}>
         <LabelChip color="rgba(255,255,255,0.9)">{block.name}</LabelChip>
         <code className="font-mono text-[0.65rem] text-[#0E0E0E]/70">{block.snippet}</code>
       </div>

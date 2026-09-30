@@ -56,7 +56,7 @@
         "tw-animate-css": "^1.3.4",
         "vaul": "^1.1.2",
         "vite-tsconfig-paths": "^6.0.2",
-        "words-in-motion": "^0.1.0",
+        "words-in-motion": "^0.1.3",
         "zod": "^3.25.76",
       },
       "devDependencies": {
@@ -962,7 +962,7 @@
 
     "word-wrap": ["word-wrap@1.2.5", "", {}, "sha512-BN22B5eaMMI9UMtjrGd5g5eCYPpCPDUy0FJXbYsaT5zYxjFOckS53SQDE3pWkVoWpHXVb3BrYcEN4Twa55B5cA=="],
 
-    "words-in-motion": ["words-in-motion@0.1.0", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/words-in-motion/-/words-in-motion-0.1.0.tgz", {}, "sha512-1w4CQhRHWXQZThkS8WsR58vOtrR9QMNIPqPItS0w2j05Dp8r/hTVLtSKYIvAucDMvEJLdq10K2F1y+Ou398i1A=="],
+    "words-in-motion": ["words-in-motion@0.1.3", "https://registry.npmjs.org/words-in-motion/-/words-in-motion-0.1.3.tgz", {}, "sha512-h21UpsjsxvHsLHt/Xei2Mtl0kdX4WGcfFh9aePjLqiMZZ3OAbXXUEViVRhXhvCuu63k3tJvCXszTbSTS4+JbWg=="],
 
     "ws": ["ws@8.21.1", "", { "peerDependencies": { "bufferutil": "^4.0.1", "utf-8-validate": ">=5.0.2" }, "optionalPeers": ["bufferutil", "utf-8-validate"] }, "sha512-+0NTnW77fFN/DjQi6k/Sq/Yvk4Sgajw7urW8V+asjXnRgDs9gyGkdb7EzgfhA4goXsRIZKE28fzIXBHEzhuiWw=="],
 

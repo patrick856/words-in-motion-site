@@ -11,7 +11,7 @@ export function PlaceholderPage({
   blurb: string;
 }) {
   return (
-    <section className="relative flex min-h-[80vh] items-center overflow-hidden px-5 pt-32 pb-20 md:px-10">
+    <section className="relative flex min-h-[80vh] items-center px-5 pt-32 pb-20 md:px-10">
       <Blobs />
       <div className="relative mx-auto w-full max-w-[900px]">
         <p className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
