@@ -28,7 +28,7 @@ const BLOCKS = [
 
 export function ScrollSection() {
   return (
-    <section className="relative px-5 py-24 md:px-10 md:py-36">
+    <section id="scroll-effects" className="relative scroll-mt-20 px-5 py-24 md:px-10 md:py-36">
       <div className="mx-auto max-w-[1100px]">
         <p className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
           Scroll-driven

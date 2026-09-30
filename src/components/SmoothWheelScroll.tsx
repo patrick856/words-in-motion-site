@@ -18,7 +18,19 @@ export function SmoothWheelScroll() {
       target = window.scrollY;
     };
 
+    const nativeStageVisible = () => {
+      const stage = document.querySelector("[data-native-scroll-stage]");
+      if (!stage) return false;
+      if (stage.querySelector('[data-held-stage="true"]')) return true;
+      const rect = stage.getBoundingClientRect();
+      return rect.top < window.innerHeight && rect.bottom > 0;
+    };
+
     const tick = (time: number) => {
+      if (nativeStageVisible()) {
+        stop();
+        return;
+      }
       const elapsed = lastTime ? Math.min(time - lastTime, 50) : 16;
       lastTime = time;
       const remaining = target - window.scrollY;
@@ -38,6 +50,11 @@ export function SmoothWheelScroll() {
 
     const onWheel = (event: WheelEvent) => {
       if (motionPreference.matches || event.ctrlKey || event.shiftKey || !event.cancelable) return;
+
+      if (nativeStageVisible()) {
+        stop();
+        return;
+      }
 
       // Let menus and other independently scrollable areas keep their native behavior.
       for (const node of event.composedPath()) {
