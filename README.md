@@ -1,24 +1,22 @@
-# Pixel Perfect Replica
+# Words in Motion website
 
-Implement exactly the screenshot and nothing else
-
-This project was built with [Lovable](https://lovable.dev).
-
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/ff6c6800-56e1-440f-882f-f0753349d6f1).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+The documentation and demonstration website for
+[`words-in-motion`](https://www.npmjs.com/package/words-in-motion), a zero-dependency typographic
+animation library built on the Web Animations API.
 
 ## Development
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+Install dependencies and start the local site:
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
+npm install
 npm run dev
+```
+
+The development server runs at `http://localhost:8080`.
+
+## Production build
+
+```sh
+npm run build
 ```
